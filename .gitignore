@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment variables / secrets
+.env
+
+# Generated Excel files
+*.xlsx
+
+# VS Code
+.vscode/
