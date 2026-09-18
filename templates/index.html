@@ -8,11 +8,30 @@
 
     <h1>Amazon商品検索ツール</h1>
 
-    <form>
+    <form method="post">
         <label>検索キーワード</label>
-        <input type="text" name="keyword">
+        <input type="text" name="keyword" value="{{ keyword }}">
         <button type="submit">検索</button>
     </form>
+
+    <p>入力されたキーワード: {{ keyword }}</p>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% elif results %}
+        <h2>検索結果</h2>
+        <ul>
+            {% for product in results %}
+                <li>
+                    <p>商品名: {{ product["商品名"] }}</p>
+                    <p>価格: {{ product["価格"] }}円</p>
+                    <p><a href="{{ product['商品URL'] }}">商品ページ</a></p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif searched %}
+        <p>検索結果がありません</p>
+    {% endif %}
 
 </body>
 </html>

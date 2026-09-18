@@ -24,6 +24,10 @@ def run_search(keyword):
 
     data = search_amazon(keyword)
     df = pd.DataFrame(data)
+
+    if df.empty:
+        return df
+
     df = filter_products(df, keyword)
 
     df["価格"] = (
@@ -46,8 +50,9 @@ def run_search(keyword):
         new_df,
         price_down_items
     )
+    slack_success = False
     if message:
-        send_slack(message)
+        slack_success = send_slack(message)
 
     end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -58,5 +63,8 @@ def run_search(keyword):
         new_count=len(new_df),
         price_down_count=len(price_down_items),
         start_time=start_time,
-        end_time=end_time
+        end_time=end_time,
+        slack_success=slack_success
     )
+
+    return df

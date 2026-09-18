@@ -16,10 +16,12 @@ def send_slack(message):
 
     if response.status_code == 200:
         print("Slack通知成功")
+        return True
 
     else:
         print("Slack通知失敗")
         print(response.text)
+        return False
 
 
 def send_result_notification(df):
