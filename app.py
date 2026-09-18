@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from bot import run_search
+from bot import run_search_keywords
 
 app = Flask(__name__)
 
@@ -24,7 +24,12 @@ def index():
         stored_error = None
 
         try:
-            search_results = run_search(stored_keyword)
+            keywords = [
+                line.strip()
+                for line in stored_keyword.splitlines()
+                if line.strip()
+            ]
+            search_results = run_search_keywords(keywords)
             stored_results = search_results.to_dict(orient="records")
         except Exception:
             stored_error = "検索中にエラーが発生しました"
