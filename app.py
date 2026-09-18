@@ -3,28 +3,49 @@ from bot import run_search
 
 app = Flask(__name__)
 
+PAGE_SIZE = 10
+stored_results = []
+stored_keyword = ""
+stored_searched = False
+stored_error = None
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    keyword = request.form.get("keyword", "")
-    results = []
-    searched = False
-    error = None
+    global stored_results, stored_keyword, stored_searched, stored_error
+
+    page = request.args.get("page", 1, type=int) or 1
 
     if request.method == "POST":
-        searched = True
+        page = 1
+        stored_keyword = request.form.get("keyword", "")
+        stored_results = []
+        stored_searched = True
+        stored_error = None
+
         try:
-            search_results = run_search(keyword)
-            results = search_results.to_dict(orient="records")
+            search_results = run_search(stored_keyword)
+            stored_results = search_results.to_dict(orient="records")
         except Exception:
-            error = "検索中にエラーが発生しました"
+            stored_error = "検索中にエラーが発生しました"
+
+    total_pages = (len(stored_results) + PAGE_SIZE - 1) // PAGE_SIZE
+    if total_pages:
+        current_page = max(1, min(page, total_pages))
+        start = (current_page - 1) * PAGE_SIZE
+        results = stored_results[start:start + PAGE_SIZE]
+    else:
+        current_page = 1
+        results = []
 
     return render_template(
         "index.html",
-        keyword=keyword,
+        keyword=stored_keyword,
         results=results,
-        searched=searched,
-        error=error
+        searched=stored_searched,
+        error=stored_error,
+        current_page=current_page,
+        total_pages=total_pages
     )
 
 

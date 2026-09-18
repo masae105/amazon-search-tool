@@ -3,6 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <title>Amazon商品検索ツール</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+            color: #263238;
+            background: #f4f6f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            color: #1f2d3d;
+            font-size: 28px;
+            letter-spacing: 0;
+        }
+
+        h2 {
+            margin: 32px 0 12px;
+            color: #34495e;
+            font-size: 20px;
+            letter-spacing: 0;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 10px;
+            padding: 18px;
+            background: #ffffff;
+            border: 1px solid #d9e0e6;
+            border-radius: 4px;
+        }
+
+        label {
+            width: 100%;
+            color: #455a64;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            min-width: 0;
+            flex: 1 1 240px;
+            padding: 9px 11px;
+            color: #263238;
+            background: #ffffff;
+            border: 1px solid #b8c4ce;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: 2px solid #90caf9;
+            outline-offset: 1px;
+            border-color: #1976d2;
+        }
+
+        button {
+            padding: 9px 20px;
+            color: #ffffff;
+            background: #2f6f9f;
+            border: 1px solid #2f6f9f;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #255b83;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border: 1px solid #d9e0e6;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            border: 1px solid #d9e0e6;
+            text-align: left;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            color: #ffffff;
+            background: #526b7a;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        td:nth-child(2) {
+            width: 140px;
+            color: #263238;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        td:nth-child(3) {
+            width: 130px;
+            white-space: nowrap;
+        }
+
+        a {
+            color: #1769aa;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: #0d4775;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 24px 12px 36px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            form {
+                padding: 14px;
+            }
+
+            button {
+                flex: 1 1 100%;
+            }
+
+            th,
+            td {
+                padding: 9px 8px;
+                font-size: 14px;
+            }
+
+            td:nth-child(2),
+            td:nth-child(3) {
+                width: auto;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -20,15 +172,31 @@
         <p>{{ error }}</p>
     {% elif results %}
         <h2>検索結果</h2>
-        <ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>商品名</th>
+                    <th>価格</th>
+                    <th>商品ページ</th>
+                </tr>
+            </thead>
+            <tbody>
             {% for product in results %}
-                <li>
-                    <p>商品名: {{ product["商品名"] }}</p>
-                    <p>価格: {{ product["価格"] }}円</p>
-                    <p><a href="{{ product['商品URL'] }}">商品ページ</a></p>
-                </li>
+                <tr>
+                    <td>{{ product["商品名"] }}</td>
+                    <td>{{ product["価格"] }}円</td>
+                    <td><a href="{{ product['商品URL'] }}">商品ページ</a></td>
+                </tr>
             {% endfor %}
-        </ul>
+            </tbody>
+        </table>
+        <p>ページ {{ current_page }} / {{ total_pages }}</p>
+        {% if current_page > 1 %}
+            <a href="/?page={{ current_page - 1 }}">前へ</a>
+        {% endif %}
+        {% if current_page < total_pages %}
+            <a href="/?page={{ current_page + 1 }}">次へ</a>
+        {% endif %}
     {% elif searched %}
         <p>検索結果がありません</p>
     {% endif %}
