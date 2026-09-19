@@ -12,22 +12,35 @@
             max-width: 960px;
             margin: 0 auto;
             padding: 32px 20px 48px;
-            color: #263238;
-            background: #f4f6f8;
+            color: #334155;
+            background: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             line-height: 1.6;
         }
 
+        .card {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
         h1 {
             margin: 0 0 24px;
-            color: #1f2d3d;
+            color: #0f172a;
             font-size: 28px;
             letter-spacing: 0;
         }
 
         h2 {
             margin: 32px 0 12px;
-            color: #34495e;
+            color: #334155;
             font-size: 20px;
             letter-spacing: 0;
         }
@@ -39,13 +52,40 @@
             gap: 10px;
             padding: 18px;
             background: #ffffff;
-            border: 1px solid #d9e0e6;
+            border: 1px solid #e2e8f0;
             border-radius: 4px;
+        }
+
+        .search-card > form {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .search-card label {
+            margin-bottom: 2px;
+            font-size: 15px;
+        }
+
+        .search-card textarea {
+            width: 100%;
+            min-height: 120px;
+            flex: 1 1 100%;
+            padding: 12px 14px;
+            border-radius: 6px;
+        }
+
+        .search-help {
+            width: 100%;
+            margin: -2px 0 0;
+            color: #64748b;
+            font-size: 13px;
         }
 
         label {
             width: 100%;
-            color: #455a64;
+            color: #475569;
             font-size: 14px;
             font-weight: 600;
         }
@@ -55,9 +95,9 @@
             min-width: 0;
             flex: 1 1 240px;
             padding: 9px 11px;
-            color: #263238;
+            color: #334155;
             background: #ffffff;
-            border: 1px solid #b8c4ce;
+            border: 1px solid #cbd5e1;
             border-radius: 3px;
             font-size: 16px;
             font-family: inherit;
@@ -67,16 +107,16 @@
 
         input[type="text"]:focus,
         textarea:focus {
-            outline: 2px solid #90caf9;
+            outline: 2px solid #93c5fd;
             outline-offset: 1px;
-            border-color: #1976d2;
+            border-color: #2563eb;
         }
 
         button {
             padding: 9px 20px;
             color: #ffffff;
-            background: #2f6f9f;
-            border: 1px solid #2f6f9f;
+            background: #334155;
+            border: 1px solid #334155;
             border-radius: 3px;
             cursor: pointer;
             font-size: 15px;
@@ -84,34 +124,45 @@
         }
 
         button:hover {
-            background: #255b83;
+            background: #1e293b;
+        }
+
+        .search-button {
+            margin-left: auto;
+            padding: 10px 24px;
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .search-button:hover {
+            background: #1d4ed8;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             background: #ffffff;
-            border: 1px solid #d9e0e6;
+            border: 1px solid #e2e8f0;
         }
 
         th,
         td {
             padding: 12px 14px;
-            border: 1px solid #d9e0e6;
+            border: 1px solid #e2e8f0;
             text-align: left;
             overflow-wrap: anywhere;
         }
 
         th {
             color: #ffffff;
-            background: #526b7a;
+            background: #334155;
             font-size: 14px;
             font-weight: 600;
         }
 
         td:nth-child(2) {
             width: 180px;
-            color: #263238;
+            color: #334155;
             overflow-wrap: anywhere;
         }
 
@@ -127,55 +178,122 @@
             white-space: nowrap;
         }
 
+        .results-table {
+            table-layout: fixed;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 14px;
+        }
+
+        .results-table th:nth-child(1),
+        .results-table td:nth-child(1) {
+            width: 140px;
+        }
+
+        .results-table th:nth-child(2),
+        .results-table td:nth-child(2) {
+            width: auto;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .results-table th:nth-child(3),
+        .results-table td:nth-child(3) {
+            width: 105px;
+            white-space: nowrap;
+        }
+
+        .results-table th:nth-child(4),
+        .results-table td:nth-child(4) {
+            width: 145px;
+        }
+
+        .product-link {
+            display: inline-block;
+            padding: 6px 10px;
+            color: #ffffff;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            border-radius: 3px;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .product-link:hover {
+            color: #ffffff;
+            background: #1d4ed8;
+        }
+
         .history-actions {
             white-space: nowrap;
         }
 
         .history-actions form {
             display: inline;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .history-actions form + form {
+            margin-left: 6px;
+        }
+
+        .history-research-button,
+        .history-delete-button {
+            padding: 7px 12px;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
         .history-research-button {
-            background: #2f6f9f;
-            border-color: #2f6f9f;
+            background: #2563eb;
+            border-color: #2563eb;
         }
 
         .history-research-button:hover {
-            background: #255b83;
+            background: #1d4ed8;
         }
 
         .history-delete-button {
-            background: #c62828;
-            border-color: #c62828;
+            background: #dc2626;
+            border-color: #dc2626;
         }
 
         .history-delete-button:hover {
-            background: #a61f1f;
+            background: #b91c1c;
         }
 
         .history-clear-link {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 9px 20px;
-            color: #ffffff;
-            background: #c62828;
-            border: 1px solid #c62828;
+            display: block;
+            width: fit-content;
+            margin: 12px 0 0 auto;
+            padding: 8px 16px;
+            color: #dc2626;
+            background: #ffffff;
+            border: 1px solid #dc2626;
             border-radius: 3px;
+            font-size: 14px;
             font-weight: 600;
+            line-height: 1.4;
         }
 
         .history-clear-link:hover {
-            color: #ffffff;
-            background: #a61f1f;
+            color: #b91c1c;
+            background: #fef2f2;
         }
 
         a {
-            color: #1769aa;
+            color: #2563eb;
             font-weight: 600;
         }
 
         a:hover {
-            color: #0d4775;
+            color: #1d4ed8;
         }
 
         @media (max-width: 600px) {
@@ -215,82 +333,88 @@
 
     <h1>Amazon商品検索ツール</h1>
 
-    <form method="post">
-        <label>検索キーワード</label>
-        <textarea name="keyword" rows="3">{{ keyword }}</textarea>
-        <button type="submit">検索</button>
-    </form>
+    <section class="card search-card">
+        <h2>商品検索</h2>
+        <form method="post">
+            <label for="keyword">検索キーワード</label>
+            <textarea id="keyword" name="keyword" rows="3">{{ keyword }}</textarea>
+            <p class="search-help">複数キーワードは改行して入力できます</p>
+            <button class="search-button" type="submit">検索</button>
+        </form>
+    </section>
 
-    <p>入力されたキーワード: {{ keyword }}</p>
-
-    {% if error %}
-        <p>{{ error }}</p>
-    {% elif results %}
-        <h2>検索結果</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>検索キーワード</th>
-                    <th>商品名</th>
-                    <th>価格</th>
-                    <th>商品ページ</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for product in results %}
-                <tr>
-                    <td>{{ product["検索キーワード"] }}</td>
-                    <td>{{ product["商品名"] }}</td>
-                    <td>{{ product["価格"] }}円</td>
-                    <td><a href="{{ product['商品URL'] }}">商品ページ</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <p>ページ {{ current_page }} / {{ total_pages }}</p>
-        {% if current_page > 1 %}
-            <a href="/?page={{ current_page - 1 }}">前へ</a>
+    <section class="card results-card">
+        {% if error %}
+            <p>{{ error }}</p>
+        {% elif results %}
+            <h2>検索結果</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>検索キーワード</th>
+                        <th>商品名</th>
+                        <th>価格</th>
+                        <th>商品ページ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for product in results %}
+                    <tr>
+                        <td>{{ product["検索キーワード"] }}</td>
+                        <td>{{ product["商品名"] }}</td>
+                        <td>{{ product["価格"] }}円</td>
+                        <td><a class="product-link" href="{{ product['商品URL'] }}">商品を見る</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>ページ {{ current_page }} / {{ total_pages }}</p>
+            {% if current_page > 1 %}
+                <a href="/?page={{ current_page - 1 }}">前へ</a>
+            {% endif %}
+            {% if current_page < total_pages %}
+                <a href="/?page={{ current_page + 1 }}">次へ</a>
+            {% endif %}
+        {% elif searched %}
+            <p>検索結果がありません</p>
         {% endif %}
-        {% if current_page < total_pages %}
-            <a href="/?page={{ current_page + 1 }}">次へ</a>
-        {% endif %}
-    {% elif searched %}
-        <p>検索結果がありません</p>
-    {% endif %}
+    </section>
 
-    <h2>検索履歴</h2>
-    {% if history %}
-        <table>
-            <thead>
-                <tr>
-                    <th>検索キーワード</th>
-                    <th>検索結果件数</th>
-                    <th>検索日時</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for record in history %}
-                <tr>
-                    <td>{{ record[1] }}</td>
-                    <td>{{ record[2] }}</td>
-                    <td>{{ record[3].strftime("%Y-%m-%d %H:%M") }}</td>
-                    <td class="history-actions">
-                        <form method="post" action="/history/research/{{ record[0] }}">
-                            <button class="history-research-button" type="submit">再検索</button>
-                        </form>
-                        <form method="post" action="/history/delete/{{ record[0] }}">
-                            <button class="history-delete-button" type="submit">削除</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <a class="history-clear-link" href="/history/clear/confirm">履歴をすべて削除</a>
-    {% else %}
-        <p>検索履歴はありません。</p>
-    {% endif %}
+    <section class="card history-card">
+        <h2>検索履歴</h2>
+        {% if history %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>検索キーワード</th>
+                        <th>検索結果件数</th>
+                        <th>検索日時</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for record in history %}
+                    <tr>
+                        <td>{{ record[1] }}</td>
+                        <td>{{ record[2] }}</td>
+                        <td>{{ record[3].strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td class="history-actions">
+                            <form method="post" action="/history/research/{{ record[0] }}">
+                                <button class="history-research-button" type="submit">再検索</button>
+                            </form>
+                            <form method="post" action="/history/delete/{{ record[0] }}">
+                                <button class="history-delete-button" type="submit">削除</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a class="history-clear-link" href="/history/clear/confirm">履歴をすべて削除</a>
+        {% else %}
+            <p>検索履歴はありません。</p>
+        {% endif %}
+    </section>
 
 </body>
 </html>
