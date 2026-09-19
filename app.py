@@ -35,6 +35,88 @@ def save_search_history(keyword, result_count):
     conn.close()
 
 
+def add_monitor_keyword(keyword):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO monitor_keywords (keyword) VALUES (%s)",
+        (keyword,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def get_monitor_keywords():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT id, keyword, is_active, created_at "
+        "FROM monitor_keywords ORDER BY id ASC"
+    )
+
+    keywords = cur.fetchall()
+    cur.close()
+    conn.close()
+    return keywords
+
+
+def get_active_monitor_keywords():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT keyword FROM monitor_keywords "
+        "WHERE is_active = TRUE ORDER BY id ASC"
+    )
+
+    rows = cur.fetchall()
+    keywords = [row[0] for row in rows]
+    cur.close()
+    conn.close()
+    return keywords
+
+
+def run_monitored_search():
+    keywords = get_active_monitor_keywords()
+    if not keywords:
+        return None
+
+    result = run_search_keywords(keywords)
+    return result
+
+
+def toggle_monitor_keyword(keyword_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "UPDATE monitor_keywords SET is_active = NOT is_active WHERE id = %s",
+        (keyword_id,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def delete_monitor_keyword(keyword_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM monitor_keywords WHERE id = %s",
+        (keyword_id,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 def get_search_history():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -89,6 +171,36 @@ def clear_search_history():
     conn.commit()
     cur.close()
     conn.close()
+
+
+@app.route("/monitor/toggle/<int:keyword_id>", methods=["POST"])
+def toggle_monitor(keyword_id):
+    toggle_monitor_keyword(keyword_id)
+    return redirect(url_for("monitor"))
+
+
+@app.route("/monitor/delete/<int:keyword_id>", methods=["POST"])
+def delete_monitor(keyword_id):
+    delete_monitor_keyword(keyword_id)
+    return redirect(url_for("monitor"))
+
+
+@app.route("/monitor/run", methods=["POST"])
+def run_monitor_now():
+    run_monitored_search()
+    return redirect(url_for("monitor"))
+
+
+@app.route("/monitor", methods=["GET", "POST"])
+def monitor():
+    if request.method == "POST":
+        keyword = request.form.get("keyword", "").strip()
+        if keyword:
+            add_monitor_keyword(keyword)
+        return redirect(url_for("monitor"))
+
+    monitor_keywords = get_monitor_keywords()
+    return render_template("monitor.html", monitor_keywords=monitor_keywords)
 
 
 @app.route("/history/clear/confirm", methods=["GET"])

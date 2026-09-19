@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>監視キーワード管理</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+            color: #334155;
+            background: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+        }
+
+        .card {
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            color: #0f172a;
+            font-size: 28px;
+            letter-spacing: 0;
+        }
+
+        .monitor-form {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .monitor-form label {
+            display: block;
+            margin-bottom: 6px;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .monitor-form input {
+            width: 100%;
+            padding: 9px 11px;
+            color: #334155;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        .monitor-form input:focus {
+            outline: 2px solid #93c5fd;
+            outline-offset: 1px;
+            border-color: #2563eb;
+        }
+
+        .monitor-form-field {
+            flex: 1;
+        }
+
+        .monitor-form button {
+            padding: 9px 20px;
+            color: #ffffff;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .monitor-form button:hover {
+            background: #1d4ed8;
+        }
+
+        .monitor-run-form {
+            margin-bottom: 24px;
+        }
+
+        .monitor-run-description {
+            margin: 0 0 8px;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .monitor-run-button {
+            padding: 10px 22px;
+            color: #ffffff;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .monitor-run-button:hover {
+            background: #1d4ed8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            color: #ffffff;
+            background: #334155;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        td:nth-child(2) {
+            width: 120px;
+            white-space: nowrap;
+        }
+
+        td:nth-child(3) {
+            width: 180px;
+            white-space: nowrap;
+        }
+
+        td:nth-child(4) {
+            width: 130px;
+            white-space: nowrap;
+        }
+
+        .monitor-toggle-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .monitor-toggle-button {
+            padding: 7px 12px;
+            color: #ffffff;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .monitor-toggle-button:hover {
+            background: #1d4ed8;
+        }
+
+        .monitor-delete-form {
+            display: inline;
+            margin: 0 0 0 6px;
+        }
+
+        .monitor-delete-button {
+            padding: 7px 12px;
+            color: #ffffff;
+            background: #dc2626;
+            border: 1px solid #dc2626;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .monitor-delete-button:hover {
+            background: #b91c1c;
+        }
+
+        .status {
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: #1d4ed8;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 24px 12px 36px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            th,
+            td {
+                padding: 9px 8px;
+                font-size: 14px;
+            }
+
+            td:nth-child(2),
+            td:nth-child(3) {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>監視キーワード管理</h1>
+
+        <form class="monitor-form" method="post" action="/monitor">
+            <div class="monitor-form-field">
+                <label for="monitor-keyword">監視キーワード</label>
+                <input id="monitor-keyword" name="keyword" type="text" placeholder="例：モバイルバッテリー" required>
+            </div>
+            <button type="submit">追加</button>
+        </form>
+
+        <form class="monitor-run-form" method="post" action="/monitor/run">
+            <p class="monitor-run-description">ONになっているキーワードを検索します</p>
+            <button class="monitor-run-button" type="submit">今すぐ実行</button>
+        </form>
+
+        {% if monitor_keywords %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>キーワード</th>
+                        <th>監視状態</th>
+                        <th>登録日時</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for record in monitor_keywords %}
+                    <tr>
+                        <td>{{ record[1] }}</td>
+                        <td class="status">{% if record[2] %}ON{% else %}OFF{% endif %}</td>
+                        <td>{{ record[3].strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td>
+                            <form class="monitor-toggle-form" method="post" action="/monitor/toggle/{{ record[0] }}">
+                                {% if record[2] %}
+                                    <button class="monitor-toggle-button" type="submit">OFFにする</button>
+                                {% else %}
+                                    <button class="monitor-toggle-button" type="submit">ONにする</button>
+                                {% endif %}
+                            </form>
+                            <form class="monitor-delete-form" method="post" action="/monitor/delete/{{ record[0] }}">
+                                <button class="monitor-delete-button" type="submit">削除</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>監視キーワードはありません。</p>
+        {% endif %}
+
+        <a class="back-link" href="/">トップページに戻る</a>
+    </main>
+</body>
+</html>
