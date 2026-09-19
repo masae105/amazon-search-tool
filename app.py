@@ -80,6 +80,28 @@ def delete_search_history(history_id):
     conn.close()
 
 
+def clear_search_history():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM search_history")
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+@app.route("/history/clear/confirm", methods=["GET"])
+def clear_history_confirm():
+    return render_template("clear_history_confirm.html")
+
+
+@app.route("/history/clear", methods=["POST"])
+def clear_history():
+    clear_search_history()
+    return redirect(url_for("index"))
+
+
 @app.route("/history/delete/<int:history_id>", methods=["POST"])
 def delete_history(history_id):
     delete_search_history(history_id)

@@ -153,6 +153,22 @@
             background: #a61f1f;
         }
 
+        .history-clear-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 9px 20px;
+            color: #ffffff;
+            background: #c62828;
+            border: 1px solid #c62828;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .history-clear-link:hover {
+            color: #ffffff;
+            background: #a61f1f;
+        }
+
         a {
             color: #1769aa;
             font-weight: 600;
@@ -271,6 +287,9 @@
             {% endfor %}
             </tbody>
         </table>
+        <a class="history-clear-link" href="/history/clear/confirm">履歴をすべて削除</a>
+    {% else %}
+        <p>検索履歴はありません。</p>
     {% endif %}
 
 </body>
