@@ -216,5 +216,33 @@
         <p>検索結果がありません</p>
     {% endif %}
 
+    <h2>検索履歴</h2>
+    {% if history %}
+        <table>
+            <thead>
+                <tr>
+                    <th>検索キーワード</th>
+                    <th>検索結果件数</th>
+                    <th>検索日時</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for record in history %}
+                <tr>
+                    <td>{{ record[1] }}</td>
+                    <td>{{ record[2] }}</td>
+                    <td>{{ record[3].strftime("%Y-%m-%d %H:%M") }}</td>
+                    <td>
+                        <form method="post" action="/history/delete/{{ record[0] }}">
+                            <button type="submit">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
 </body>
 </html>
