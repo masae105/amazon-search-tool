@@ -127,6 +127,32 @@
             white-space: nowrap;
         }
 
+        .history-actions {
+            white-space: nowrap;
+        }
+
+        .history-actions form {
+            display: inline;
+        }
+
+        .history-research-button {
+            background: #2f6f9f;
+            border-color: #2f6f9f;
+        }
+
+        .history-research-button:hover {
+            background: #255b83;
+        }
+
+        .history-delete-button {
+            background: #c62828;
+            border-color: #c62828;
+        }
+
+        .history-delete-button:hover {
+            background: #a61f1f;
+        }
+
         a {
             color: #1769aa;
             font-weight: 600;
@@ -233,9 +259,12 @@
                     <td>{{ record[1] }}</td>
                     <td>{{ record[2] }}</td>
                     <td>{{ record[3].strftime("%Y-%m-%d %H:%M") }}</td>
-                    <td>
+                    <td class="history-actions">
+                        <form method="post" action="/history/research/{{ record[0] }}">
+                            <button class="history-research-button" type="submit">再検索</button>
+                        </form>
                         <form method="post" action="/history/delete/{{ record[0] }}">
-                            <button type="submit">削除</button>
+                            <button class="history-delete-button" type="submit">削除</button>
                         </form>
                     </td>
                 </tr>

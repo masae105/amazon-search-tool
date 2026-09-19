@@ -50,6 +50,22 @@ def get_search_history():
     return history
 
 
+def get_search_history_keyword(history_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT keyword FROM search_history WHERE id = %s",
+        (history_id,)
+    )
+
+    record = cur.fetchone()
+    keyword = record[0] if record else None
+    cur.close()
+    conn.close()
+    return keyword
+
+
 def delete_search_history(history_id):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -67,6 +83,34 @@ def delete_search_history(history_id):
 @app.route("/history/delete/<int:history_id>", methods=["POST"])
 def delete_history(history_id):
     delete_search_history(history_id)
+    return redirect(url_for("index"))
+
+
+@app.route("/history/research/<int:history_id>", methods=["POST"])
+def research_history(history_id):
+    global stored_results, stored_keyword, stored_searched, stored_error
+
+    history_keyword = get_search_history_keyword(history_id)
+    if history_keyword is None:
+        return redirect(url_for("index"))
+
+    stored_keyword = history_keyword
+    stored_results = []
+    stored_searched = True
+    stored_error = None
+
+    try:
+        keywords = [
+            keyword.strip()
+            for keyword in history_keyword.split(", ")
+            if keyword.strip()
+        ]
+        search_results = run_search_keywords(keywords)
+        stored_results = search_results.to_dict(orient="records")
+        save_search_history(", ".join(keywords), len(stored_results))
+    except Exception:
+        stored_error = "検索中にエラーが発生しました"
+
     return redirect(url_for("index"))
 
 
