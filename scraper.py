@@ -7,7 +7,9 @@ import time
 def search_amazon(keyword):
     # Chrome起動
     options = Options()
-    options.add_argument("--start-maximized")
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
     driver = webdriver.Chrome(options=options)
 

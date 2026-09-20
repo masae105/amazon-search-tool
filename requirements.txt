@@ -4,3 +4,5 @@ openpyxl
 selenium
 requests
 python-dotenv
+psycopg[binary]
+gunicorn

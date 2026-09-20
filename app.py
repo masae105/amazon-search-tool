@@ -2,7 +2,7 @@ import os
 
 import psycopg
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 from bot import run_search_keywords
 
@@ -12,14 +12,18 @@ app = Flask(__name__)
 
 
 def get_db_connection():
+    db_host = os.getenv("DB_HOST")
+
+    if os.getenv("K_SERVICE"):
+        db_host = "/cloudsql/project-3df45723-f4b0-4dfb-9ca:asia-northeast1:amazon-search-db"
+
     return psycopg.connect(
         dbname=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
+        host=db_host,
         port=os.getenv("DB_PORT")
     )
-
 
 def save_search_history(keyword, result_count):
     conn = get_db_connection()
@@ -189,6 +193,14 @@ def delete_monitor(keyword_id):
 def run_monitor_now():
     run_monitored_search()
     return redirect(url_for("monitor"))
+
+
+@app.route("/api/monitor/run", methods=["GET"])
+def run_monitor_api():
+    result = run_monitored_search()
+    if result is None:
+        return jsonify(status="no_active_keywords")
+    return jsonify(status="success")
 
 
 @app.route("/monitor", methods=["GET", "POST"])
