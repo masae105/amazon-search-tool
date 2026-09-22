@@ -12,6 +12,6 @@ NG_WORDS = [
     "Prime Video",
 ]
 
-OUTPUT_FILE = "Amazon検索結果.xlsx"
+OUTPUT_FILE = "楽天検索結果.xlsx"
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")

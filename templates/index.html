@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Amazon商品検索ツール</title>
+    <title>楽天商品検索ツール</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,6 +16,31 @@
             background: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             line-height: 1.6;
+        }
+
+        .global-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+
+        .global-nav a {
+            display: inline-block;
+            padding: 7px 12px;
+            color: #334155;
+            border-radius: 3px;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .global-nav a:hover {
+            color: #1d4ed8;
+            background: #eff6ff;
         }
 
         .card {
@@ -331,7 +356,13 @@
 </head>
 <body>
 
-    <h1>Amazon商品検索ツール</h1>
+    <nav class="global-nav" aria-label="メインナビゲーション">
+        <a href="{{ url_for('index') }}">商品検索</a>
+        <a href="{{ url_for('monitor') }}">監視キーワード</a>
+        <a href="{{ url_for('product_history') }}">価格履歴</a>
+    </nav>
+
+    <h1>楽天商品検索ツール</h1>
 
     <section class="card search-card">
         <h2>商品検索</h2>

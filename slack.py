@@ -1,5 +1,7 @@
 import requests
+
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from config import SLACK_WEBHOOK_URL
 
@@ -40,7 +42,7 @@ URL：
 
 
 def create_notification_message(new_df, price_down_items):
-    message = "🛒 Amazon検索通知\n\n"
+    message = "🛒 楽天商品検索通知\n\n"
 
     if not new_df.empty:
         message += "🆕 新商品\n"
@@ -74,7 +76,7 @@ def create_notification_message(new_df, price_down_items):
 --------------------
 """
 
-    finish_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    finish_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
     message += f"""
     ⏰ 完了時刻：{finish_time}
     """
@@ -83,4 +85,4 @@ def create_notification_message(new_df, price_down_items):
 
 
 if __name__ == "__main__":
-    send_slack("Amazon商品検索Bot テスト通知")
+    send_slack("楽天商品検索Bot テスト通知")
