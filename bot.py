@@ -5,7 +5,11 @@ from zoneinfo import ZoneInfo
 from rakuten import search_rakuten
 from excel import save_excel
 from filter import filter_products
-from product_history import get_latest_price, save_product_history
+from product_history import (
+    get_db_connection,
+    get_latest_price,
+    save_product_history,
+)
 from slack import (send_slack, create_notification_message)
 
 
@@ -39,30 +43,34 @@ def _check_price_history(df, keyword):
     new_items = []
     price_down_items = []
 
-    for _, row in df.iterrows():
-        item_code = row["ASIN"]
-        current_price = row["価格"]
-        previous_price = get_latest_price(item_code)
+    with get_db_connection() as conn:
+        for _, row in df.iterrows():
+            item_code = row["ASIN"]
+            current_price = row["価格"]
+            previous_price = get_latest_price(conn, item_code)
 
-        if previous_price is None:
-            new_items.append(row)
-        elif current_price < previous_price:
-            price_down_items.append({
-                "商品名": row["商品名"],
-                "商品URL": row["商品URL"],
-                "前回価格": previous_price,
-                "今回価格": current_price,
-                "値下げ額": previous_price - current_price,
-            })
+            if previous_price is None:
+                new_items.append(row)
+            elif current_price < previous_price:
+                price_down_items.append({
+                    "商品名": row["商品名"],
+                    "商品URL": row["商品URL"],
+                    "前回価格": previous_price,
+                    "今回価格": current_price,
+                    "値下げ額": previous_price - current_price,
+                })
 
-        history_keyword = row.get("検索キーワード", keyword)
-        save_product_history(
-            history_keyword,
-            item_code,
-            row["商品名"],
-            current_price,
-            row["商品URL"],
-        )
+            history_keyword = row.get("検索キーワード", keyword)
+            save_product_history(
+                conn,
+                history_keyword,
+                item_code,
+                row["商品名"],
+                current_price,
+                row["商品URL"],
+            )
+
+        conn.commit()
 
     new_df = pd.DataFrame(new_items, columns=df.columns)
     return new_df, price_down_items

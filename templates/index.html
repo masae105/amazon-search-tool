@@ -226,13 +226,27 @@
 
         .results-table th:nth-child(3),
         .results-table td:nth-child(3) {
-            width: 105px;
+            width: 135px;
             white-space: nowrap;
+        }
+
+        .results-table td:nth-child(3) {
+            padding-right: 18px;
         }
 
         .results-table th:nth-child(4),
         .results-table td:nth-child(4) {
             width: 145px;
+        }
+
+        .price-comparison {
+            display: block;
+            margin-top: 6px;
+            padding-right: 12px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: nowrap;
         }
 
         .product-link {
@@ -379,6 +393,14 @@
             <p>{{ error }}</p>
         {% elif results %}
             <h2>検索結果</h2>
+            <form class="sort-form" method="get">
+                <label for="sort">並び順：</label>
+                <select id="sort" name="sort" onchange="this.form.submit()">
+                    <option value="standard" {% if sort == "standard" %}selected{% endif %}>標準</option>
+                    <option value="price_asc" {% if sort == "price_asc" %}selected{% endif %}>価格が安い順</option>
+                    <option value="price_desc" {% if sort == "price_desc" %}selected{% endif %}>価格が高い順</option>
+                </select>
+            </form>
             <table class="results-table">
                 <thead>
                     <tr>
@@ -393,7 +415,10 @@
                     <tr>
                         <td>{{ product["検索キーワード"] }}</td>
                         <td>{{ product["商品名"] }}</td>
-                        <td>{{ product["価格"] }}円</td>
+                        <td>
+                            {{ product["価格"] }}円<br>
+                            <small class="price-comparison">{{ product["price_comparison"] }}</small>
+                        </td>
                         <td><a class="product-link" href="{{ product['商品URL'] }}">商品を見る</a></td>
                     </tr>
                 {% endfor %}
@@ -401,10 +426,10 @@
             </table>
             <p>ページ {{ current_page }} / {{ total_pages }}</p>
             {% if current_page > 1 %}
-                <a href="/?page={{ current_page - 1 }}">前へ</a>
+                <a href="/?page={{ current_page - 1 }}&amp;sort={{ sort }}">前へ</a>
             {% endif %}
             {% if current_page < total_pages %}
-                <a href="/?page={{ current_page + 1 }}">次へ</a>
+                <a href="/?page={{ current_page + 1 }}&amp;sort={{ sort }}">次へ</a>
             {% endif %}
         {% elif searched %}
             <p>検索結果がありません</p>

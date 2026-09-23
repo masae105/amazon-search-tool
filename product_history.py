@@ -26,7 +26,7 @@ def get_db_connection():
     )
 
 
-def get_latest_price(item_code):
+def get_latest_price(connection, item_code):
     query = """
         SELECT price
         FROM product_history
@@ -35,15 +35,15 @@ def get_latest_price(item_code):
         LIMIT 1
     """
 
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (item_code,))
-            row = cur.fetchone()
+    with connection.cursor() as cur:
+        cur.execute(query, (item_code,))
+        row = cur.fetchone()
 
     return row[0] if row else None
 
 
 def save_product_history(
+    connection,
     keyword,
     item_code,
     product_name,
@@ -56,10 +56,8 @@ def save_product_history(
         VALUES (%s, %s, %s, %s, %s)
     """
 
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                query,
-                (keyword, item_code, product_name, price, product_url),
-            )
-        conn.commit()
+    with connection.cursor() as cur:
+        cur.execute(
+            query,
+            (keyword, item_code, product_name, price, product_url),
+        )

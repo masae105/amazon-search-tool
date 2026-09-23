@@ -1,4 +1,5 @@
 import os
+import math
 
 import requests
 
@@ -31,6 +32,62 @@ def get_db_connection():
         host=db_host,
         port=os.getenv("DB_PORT")
     )
+
+
+def get_notification_settings():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT notify_new_items, notify_price_drops, notify_no_change, "
+        "min_price_drop_amount, min_price_drop_percent "
+        "FROM notification_settings WHERE id = 1"
+    )
+
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    return {
+        "notify_new_items": row[0] if row else None,
+        "notify_price_drops": row[1] if row else None,
+        "notify_no_change": row[2] if row else None,
+        "min_price_drop_amount": row[3] if row else None,
+        "min_price_drop_percent": row[4] if row else None,
+    }
+
+
+def update_notification_settings(
+    notify_new_items,
+    notify_price_drops,
+    notify_no_change,
+    min_price_drop_amount,
+    min_price_drop_percent,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "UPDATE notification_settings "
+        "SET notify_new_items = %s, "
+        "notify_price_drops = %s, "
+        "notify_no_change = %s, "
+        "min_price_drop_amount = %s, "
+        "min_price_drop_percent = %s "
+        "WHERE id = 1",
+        (
+            notify_new_items,
+            notify_price_drops,
+            notify_no_change,
+            min_price_drop_amount,
+            min_price_drop_percent,
+        ),
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 def save_search_history(keyword, result_count):
     conn = get_db_connection()
@@ -322,7 +379,34 @@ def monitor():
         return redirect(url_for("monitor"))
 
     monitor_keywords = get_monitor_keywords()
-    return render_template("monitor.html", monitor_keywords=monitor_keywords)
+    notification_settings = get_notification_settings()
+    return render_template(
+        "monitor.html",
+        monitor_keywords=monitor_keywords,
+        notification_settings=notification_settings,
+    )
+
+
+@app.route("/monitor/settings", methods=["POST"])
+def update_monitor_settings():
+    notify_new_items = request.form.get("notify_new_items") == "on"
+    notify_price_drops = request.form.get("notify_price_drops") == "on"
+    notify_no_change = request.form.get("notify_no_change") == "on"
+    min_price_drop_amount = int(
+        request.form.get("min_price_drop_amount") or 0
+    )
+    min_price_drop_percent = float(
+        request.form.get("min_price_drop_percent") or 0
+    )
+
+    update_notification_settings(
+        notify_new_items,
+        notify_price_drops,
+        notify_no_change,
+        min_price_drop_amount,
+        min_price_drop_percent,
+    )
+    return redirect(url_for("monitor"))
 
 
 @app.route("/history/clear/confirm", methods=["GET"])
@@ -390,8 +474,8 @@ def research_history(history_id):
         search_results = run_search_keywords(keywords)
         stored_results = search_results.to_dict(orient="records")
         save_search_history(", ".join(keywords), len(stored_results))
-    except Exception as e:
-        print("検索エラー:", e)
+    except Exception:
+        app.logger.exception("検索エラー")
         stored_error = "検索中にエラーが発生しました"
 
     return redirect(url_for("index"))
@@ -408,6 +492,9 @@ def index():
     global stored_results, stored_keyword, stored_searched, stored_error
 
     page = request.args.get("page", 1, type=int) or 1
+    sort = request.args.get("sort", "standard")
+    if sort not in {"standard", "price_asc", "price_desc"}:
+        sort = "standard"
 
     if request.method == "POST":
         page = 1
@@ -429,11 +516,67 @@ def index():
             print("検索エラー:", e)
             stored_error = "検索中にエラーが発生しました"
 
-    total_pages = (len(stored_results) + PAGE_SIZE - 1) // PAGE_SIZE
+    display_results = [dict(product) for product in stored_results]
+    lowest_prices = {}
+
+    for product in display_results:
+        try:
+            price = float(str(product.get("価格")).replace(",", ""))
+            if not math.isfinite(price):
+                raise ValueError
+        except (TypeError, ValueError):
+            product["_sort_price"] = None
+            continue
+
+        product["_sort_price"] = price
+        keyword = product.get("検索キーワード")
+        if keyword not in lowest_prices or price < lowest_prices[keyword]:
+            lowest_prices[keyword] = price
+
+    for product in display_results:
+        price = product.get("_sort_price")
+        keyword = product.get("検索キーワード")
+        lowest_price = lowest_prices.get(keyword)
+        if price is None or lowest_price is None:
+            product["price_comparison"] = "価格比較なし"
+        elif price == lowest_price:
+            product["price_comparison"] = "最安値"
+        else:
+            difference = price - lowest_price
+            product["price_comparison"] = (
+                f"最安値より +{difference:g}円"
+            )
+
+    grouped_results = {}
+    for product in display_results:
+        keyword = product.get("検索キーワード")
+        grouped_results.setdefault(keyword, []).append(product)
+
+    display_results = []
+    for products in grouped_results.values():
+        if sort in {"price_asc", "price_desc"}:
+            valid_results = [
+                product
+                for product in products
+                if product["_sort_price"] is not None
+            ]
+            invalid_results = [
+                product
+                for product in products
+                if product["_sort_price"] is None
+            ]
+            valid_results.sort(
+                key=lambda product: product["_sort_price"],
+                reverse=sort == "price_desc",
+            )
+            products = valid_results + invalid_results
+        display_results.extend(products)
+
+    total_pages = (len(display_results) + PAGE_SIZE - 1) // PAGE_SIZE
     if total_pages:
         current_page = max(1, min(page, total_pages))
         start = (current_page - 1) * PAGE_SIZE
-        results = stored_results[start:start + PAGE_SIZE]
+        results = display_results[start:start + PAGE_SIZE]
     else:
         current_page = 1
         results = []
@@ -448,6 +591,7 @@ def index():
         error=stored_error,
         current_page=current_page,
         total_pages=total_pages,
+        sort=sort,
         history=history
     )
 

@@ -312,6 +312,58 @@
             <p>監視キーワードはありません。</p>
         {% endif %}
 
+        <section>
+            <h2>通知設定（全監視キーワード共通）</h2>
+            <form method="post" action="{{ url_for('update_monitor_settings') }}">
+                <label>
+                    <input
+                        type="checkbox"
+                        name="notify_new_items"
+                        {% if notification_settings["notify_new_items"] %}checked{% endif %}
+                    >
+                    新商品を通知
+                </label>
+                <label>
+                    <input
+                        type="checkbox"
+                        name="notify_price_drops"
+                        {% if notification_settings["notify_price_drops"] %}checked{% endif %}
+                    >
+                    値下げを通知
+                </label>
+                <label>
+                    <input
+                        type="checkbox"
+                        name="notify_no_change"
+                        {% if notification_settings["notify_no_change"] %}checked{% endif %}
+                    >
+                    変化なしでも結果を通知
+                </label>
+                <label>
+                    最低値下げ額（円）
+                    <input
+                        type="number"
+                        name="min_price_drop_amount"
+                        value="{{ notification_settings["min_price_drop_amount"] }}"
+                        min="0"
+                        step="1"
+                    >
+                </label>
+                <label>
+                    最低値下げ率（%）
+                    <input
+                        type="number"
+                        name="min_price_drop_percent"
+                        value="{{ notification_settings["min_price_drop_percent"] }}"
+                        min="0"
+                        step="0.1"
+                    >
+                </label>
+                <p>0を設定すると、その条件は使用しません。</p>
+                <button type="submit">設定を保存</button>
+            </form>
+        </section>
+
         <a class="back-link" href="/">トップページに戻る</a>
     </main>
 </body>

@@ -1,4 +1,5 @@
 import os
+import time
 
 import pandas as pd
 import requests
@@ -27,12 +28,18 @@ def search_rakuten(keyword):
     }
     headers = {"accessKey": access_key}
 
-    response = requests.get(
-        ENDPOINT,
-        params=params,
-        headers=headers,
-        timeout=10,
-    )
+    for attempt in range(3):
+        response = requests.get(
+            ENDPOINT,
+            params=params,
+            headers=headers,
+            timeout=10,
+        )
+        if response.status_code != 429:
+            break
+        if attempt < 2:
+            time.sleep(2 ** (attempt + 1))
+
     response.raise_for_status()
 
     products = []
