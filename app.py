@@ -157,7 +157,8 @@ def run_monitored_search():
     if not keywords:
         return None
 
-    result = run_search_keywords(keywords)
+    notification_settings = get_notification_settings()
+    result = run_search_keywords(keywords, notification_settings)
     return result
 
 

@@ -100,7 +100,7 @@ def run_search(keyword):
     return df
 
 
-def run_search_keywords(keywords):
+def run_search_keywords(keywords, notification_settings=None):
     start_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
 
     results = []
@@ -125,7 +125,34 @@ def run_search_keywords(keywords):
 
     save_excel(df)
 
-    if not new_df.empty or price_down_items:
+    if notification_settings is not None:
+        if notification_settings.get("notify_new_items") is False:
+            new_df = new_df.iloc[0:0]
+
+        if notification_settings.get("notify_price_drops") is False:
+            price_down_items = []
+        else:
+            min_amount = notification_settings.get("min_price_drop_amount") or 0
+            min_percent = notification_settings.get("min_price_drop_percent") or 0
+            price_down_items = [
+                item for item in price_down_items
+                if (
+                    min_amount <= 0
+                    or item["値下げ額"] >= min_amount
+                )
+                and (
+                    min_percent <= 0
+                    or item["値下げ額"] / item["前回価格"] * 100 >= min_percent
+                )
+            ]
+
+    should_notify = bool(not new_df.empty or price_down_items)
+    if notification_settings is not None:
+        should_notify = should_notify or (
+            notification_settings.get("notify_no_change") is True
+        )
+
+    if should_notify:
         message = create_notification_message(
             new_df,
             price_down_items
