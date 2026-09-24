@@ -152,8 +152,74 @@ def get_active_monitor_keywords():
     return keywords
 
 
+def insert_monitor_run(started_at, keywords):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO monitor_runs (started_at, keywords) "
+        "VALUES (%s, %s) RETURNING id",
+        (started_at, keywords),
+    )
+
+    monitor_run_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return monitor_run_id
+
+
+def update_monitor_run(
+    monitor_run_id,
+    total_count,
+    new_count,
+    price_down_count,
+    slack_status,
+    status,
+    error_message,
+    completed_at,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "UPDATE monitor_runs SET "
+        "total_count = %s, "
+        "new_count = %s, "
+        "price_down_count = %s, "
+        "slack_status = %s, "
+        "status = %s, "
+        "error_message = %s, "
+        "completed_at = %s "
+        "WHERE id = %s",
+        (
+            total_count,
+            new_count,
+            price_down_count,
+            slack_status,
+            status,
+            error_message,
+            completed_at,
+            monitor_run_id,
+        ),
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 def run_monitored_search():
     print("監視開始", flush=True)
+    started_at = datetime.now(ZoneInfo("Asia/Tokyo")).replace(tzinfo=None)
+    monitor_run_id = None
+    total_count = 0
+    new_count = 0
+    price_down_count = 0
+    slack_status = "なし"
+    status = "success"
+    error_message = None
+
     try:
         keywords = get_active_monitor_keywords()
         print(
@@ -164,14 +230,42 @@ def run_monitored_search():
         if not keywords:
             return None
 
+        try:
+            monitor_run_id = insert_monitor_run(
+                started_at,
+                ", ".join(keywords),
+            )
+        except Exception:
+            app.logger.exception("監視実行履歴の保存に失敗しました")
+
         notification_settings = get_notification_settings()
         result = run_search_keywords(keywords, notification_settings)
+        total_count = len(result)
         return result
     except Exception as exc:
+        status = "failure"
+        error_message = str(exc)
         print(f"監視エラー: {exc}", flush=True)
         app.logger.exception("監視エラー")
         raise
     finally:
+        if monitor_run_id is not None:
+            completed_at = datetime.now(ZoneInfo("Asia/Tokyo")).replace(
+                tzinfo=None
+            )
+            try:
+                update_monitor_run(
+                    monitor_run_id,
+                    total_count,
+                    new_count,
+                    price_down_count,
+                    slack_status,
+                    status,
+                    error_message,
+                    completed_at,
+                )
+            except Exception:
+                app.logger.exception("監視実行履歴の更新に失敗しました")
         print("監視完了", flush=True)
 
 
