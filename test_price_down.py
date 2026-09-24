@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 import pandas as pd
 
@@ -27,8 +27,11 @@ class CheckPriceHistoryTest(unittest.TestCase):
 			"今回価格": 5000,
 			"値下げ額": 980,
 		}])
-		mock_get_latest_price.assert_called_once_with("B000TEST01")
+		mock_get_latest_price.assert_called_once_with(
+			ANY, "B000TEST01"
+		)
 		mock_save_product_history.assert_called_once_with(
+			ANY,
 			"テスト検索",
 			"B000TEST01",
 			"テスト商品",
@@ -51,8 +54,11 @@ class CheckPriceHistoryTest(unittest.TestCase):
 		self.assertEqual(len(new_df), 1)
 		self.assertEqual(new_df.iloc[0].to_dict(), products.iloc[0].to_dict())
 		self.assertEqual(price_down_items, [])
-		mock_get_latest_price.assert_called_once_with("B000NEW001")
+		mock_get_latest_price.assert_called_once_with(
+			ANY, "B000NEW001"
+		)
 		mock_save_product_history.assert_called_once_with(
+			ANY,
 			"新商品検索",
 			"B000NEW001",
 			"新商品",
