@@ -167,6 +167,10 @@ def run_monitored_search():
         notification_settings = get_notification_settings()
         result = run_search_keywords(keywords, notification_settings)
         return result
+    except Exception as exc:
+        print(f"監視エラー: {exc}", flush=True)
+        app.logger.exception("監視エラー")
+        raise
     finally:
         print("監視完了", flush=True)
 

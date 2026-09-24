@@ -22,7 +22,7 @@ def send_slack(message):
 
     else:
         print("Slack通知失敗")
-        print(response.text)
+        print(f"Slack送信エラー: HTTP {response.status_code}")
         return False
 
 
