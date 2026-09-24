@@ -46,3 +46,16 @@ CREATE TABLE product_history (
     product_url TEXT,
     checked_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE monitor_runs (
+    id SERIAL PRIMARY KEY,
+    started_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    keywords TEXT NOT NULL,
+    total_count INTEGER NOT NULL DEFAULT 0,
+    new_count INTEGER NOT NULL DEFAULT 0,
+    price_down_count INTEGER NOT NULL DEFAULT 0,
+    slack_status VARCHAR(10) NOT NULL,
+    status VARCHAR(10) NOT NULL,
+    error_message TEXT,
+    completed_at TIMESTAMP WITHOUT TIME ZONE
+);
