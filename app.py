@@ -153,13 +153,22 @@ def get_active_monitor_keywords():
 
 
 def run_monitored_search():
-    keywords = get_active_monitor_keywords()
-    if not keywords:
-        return None
+    print("監視開始", flush=True)
+    try:
+        keywords = get_active_monitor_keywords()
+        print(
+            f"キーワード: {', '.join(keywords) if keywords else 'なし'}",
+            flush=True,
+        )
 
-    notification_settings = get_notification_settings()
-    result = run_search_keywords(keywords, notification_settings)
-    return result
+        if not keywords:
+            return None
+
+        notification_settings = get_notification_settings()
+        result = run_search_keywords(keywords, notification_settings)
+        return result
+    finally:
+        print("監視完了", flush=True)
 
 
 def toggle_monitor_keyword(keyword_id):

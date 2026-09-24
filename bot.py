@@ -117,6 +117,11 @@ def run_search_keywords(keywords, notification_settings=None):
             results.append(df)
 
     if not results:
+        if notification_settings is not None:
+            print("取得件数: 0", flush=True)
+            print("新商品: 0", flush=True)
+            print("値下げ: 0", flush=True)
+            print("Slack通知: なし", flush=True)
         return pd.DataFrame()
 
     df = pd.concat(results, ignore_index=True)
@@ -146,18 +151,36 @@ def run_search_keywords(keywords, notification_settings=None):
                 )
             ]
 
+    if notification_settings is not None:
+        print(f"取得件数: {total_count}", flush=True)
+        print(f"新商品: {len(new_df)}", flush=True)
+        print(f"値下げ: {len(price_down_items)}", flush=True)
+
     should_notify = bool(not new_df.empty or price_down_items)
     if notification_settings is not None:
         should_notify = should_notify or (
             notification_settings.get("notify_no_change") is True
         )
 
+    slack_success = None
     if should_notify:
         message = create_notification_message(
             new_df,
             price_down_items
         )
         slack_success = send_slack(message)
+
+    if notification_settings is not None:
+        if slack_success is None:
+            slack_status = "なし"
+        elif slack_success:
+            slack_status = "送信"
+        else:
+            slack_status = "失敗"
+        print(
+            f"Slack通知: {slack_status}",
+            flush=True,
+        )
 
     end_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
 
