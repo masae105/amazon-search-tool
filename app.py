@@ -219,6 +219,12 @@ def run_monitored_search():
     slack_status = "なし"
     status = "success"
     error_message = None
+    monitor_result = {
+        "total_count": 0,
+        "new_count": 0,
+        "price_down_count": 0,
+        "slack_status": "なし",
+    }
 
     try:
         keywords = get_active_monitor_keywords()
@@ -239,8 +245,15 @@ def run_monitored_search():
             app.logger.exception("監視実行履歴の保存に失敗しました")
 
         notification_settings = get_notification_settings()
-        result = run_search_keywords(keywords, notification_settings)
-        total_count = len(result)
+        result = run_search_keywords(
+            keywords,
+            notification_settings,
+            monitor_result,
+        )
+        total_count = monitor_result["total_count"]
+        new_count = monitor_result["new_count"]
+        price_down_count = monitor_result["price_down_count"]
+        slack_status = monitor_result["slack_status"]
         return result
     except Exception as exc:
         status = "failure"

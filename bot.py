@@ -100,7 +100,11 @@ def run_search(keyword):
     return df
 
 
-def run_search_keywords(keywords, notification_settings=None):
+def run_search_keywords(
+    keywords,
+    notification_settings=None,
+    monitor_result=None,
+):
     start_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
 
     results = []
@@ -116,12 +120,19 @@ def run_search_keywords(keywords, notification_settings=None):
         if not df.empty:
             results.append(df)
 
+    if monitor_result is not None:
+        monitor_result["total_count"] = total_count
+
     if not results:
         if notification_settings is not None:
             print("取得件数: 0", flush=True)
             print("新商品: 0", flush=True)
             print("値下げ: 0", flush=True)
             print("Slack通知: なし", flush=True)
+        if monitor_result is not None:
+            monitor_result["new_count"] = 0
+            monitor_result["price_down_count"] = 0
+            monitor_result["slack_status"] = "なし"
         return pd.DataFrame()
 
     df = pd.concat(results, ignore_index=True)
@@ -150,6 +161,10 @@ def run_search_keywords(keywords, notification_settings=None):
                     or item["値下げ額"] / item["前回価格"] * 100 >= min_percent
                 )
             ]
+
+    if monitor_result is not None:
+        monitor_result["new_count"] = len(new_df)
+        monitor_result["price_down_count"] = len(price_down_items)
 
     if notification_settings is not None:
         print(f"取得件数: {total_count}", flush=True)
@@ -181,6 +196,8 @@ def run_search_keywords(keywords, notification_settings=None):
             f"Slack通知: {slack_status}",
             flush=True,
         )
+        if monitor_result is not None:
+            monitor_result["slack_status"] = slack_status
 
     end_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
 
