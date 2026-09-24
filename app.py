@@ -157,9 +157,10 @@ def insert_monitor_run(started_at, keywords):
     cur = conn.cursor()
 
     cur.execute(
-        "INSERT INTO monitor_runs (started_at, keywords) "
-        "VALUES (%s, %s) RETURNING id",
-        (started_at, keywords),
+        "INSERT INTO monitor_runs ("
+        "started_at, keywords, slack_status, status) "
+        "VALUES (%s, %s, %s, %s) RETURNING id",
+        (started_at, keywords, "なし", "running"),
     )
 
     monitor_run_id = cur.fetchone()[0]
