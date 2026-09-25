@@ -419,7 +419,10 @@
                             {{ product["価格"] }}円<br>
                             <small class="price-comparison">{{ product["price_comparison"] }}</small>
                         </td>
-                        <td><a class="product-link" href="{{ product['商品URL'] }}">商品を見る</a></td>
+                        <td>
+                            <a class="product-link" href="{{ product['商品URL'] }}">商品を見る</a><br>
+                            <a href="{{ url_for('product_history_detail', item_code=product['ASIN']) }}">価格推移を見る</a>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
