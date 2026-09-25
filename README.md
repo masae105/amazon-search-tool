@@ -5,7 +5,9 @@
 FlaskとPostgreSQLを使用した商品検索・価格監視Webアプリです。
 楽天市場APIで商品を検索し、検索履歴と商品価格履歴を保存します。
 監視キーワードを登録し、新商品や値下げ商品を通知条件に応じてSlackへ通知します。
-Cloud Run、Cloud SQL、Cloud Schedulerを利用して定期監視できます。
+商品ごとの価格推移をグラフで確認でき、Cloud Run、Cloud SQL、Cloud Schedulerを利用した定期監視にも対応しています。
+
+検索画面、監視画面、価格履歴画面を一つのWebアプリにまとめた、商品検索と価格監視のポートフォリオです。
 
 ## 主な機能
 
@@ -24,10 +26,43 @@ Cloud Run、Cloud SQL、Cloud Schedulerを利用して定期監視できます�
 - 変化なし通知の設定
 - Slack通知
 - 商品価格履歴の保存
+- 商品別価格推移グラフ（Chart.js）
+- トップページの監視ダッシュボード
+- 監視実行履歴の保存・表示
 - Cloud Runでの運用
 - Cloud SQL(PostgreSQL)との接続
 - Cloud Schedulerによる定期監視
 - Cloud Loggingによる監視ログ・エラーログ確認
+
+## 画面と価格推移
+
+### 商品検索
+
+検索キーワードを1つ、または複数行で入力して楽天市場の商品を検索できます。
+検索結果では価格順の並び替え、商品ページへのリンク、商品ごとの「価格推移を見る」リンクを利用できます。
+
+### 商品別価格推移
+
+商品識別子ごとに保存した `product_history` の価格と確認日時を使い、既存の価格履歴画面で折れ線グラフを表示します。
+グラフはChart.jsをCDNから読み込んで描画しています。新しいPythonライブラリは使用していません。
+
+### 監視ダッシュボード
+
+トップページには、次の監視状況を表示します。
+
+- 監視中キーワード数
+- 最終監視実行日時
+- 最終監視の取得件数
+- 新商品件数
+- 値下げ件数
+- 最終監視の結果（成功、失敗、実行中）
+
+監視実行がまだない場合も、件数や結果は `-` と表示されます。
+
+### 監視実行履歴
+
+監視画面では、実行日時、キーワード、取得件数、新商品件数、値下げ件数、Slackの状態、実行結果、完了日時を確認できます。
+失敗時はエラー内容も確認できます。
 
 ## 通知設定
 
@@ -72,6 +107,7 @@ Cloud Run、Cloud SQL、Cloud Schedulerを利用して定期監視できます�
 - Cloud SQL for PostgreSQL
 - Cloud Scheduler
 - Cloud Logging
+- Secret Manager
 
 依存パッケージは [requirements.txt](requirements.txt) で管理しています。
 
@@ -120,6 +156,45 @@ Cloud Run、Cloud SQL、Cloud Schedulerを利用して定期監視できます�
 - `product_url`: 商品URL
 - `checked_at`: 確認日時
 
+### monitor_runs
+
+監視処理の実行履歴を保存するテーブルです。
+
+- `id`: 自動採番される実行履歴ID
+- `started_at`: 実行開始日時
+- `keywords`: 実行対象のキーワード
+- `total_count`: 取得件数
+- `new_count`: 新商品件数
+- `price_down_count`: 値下げ件数
+- `slack_status`: Slack通知の状態
+- `status`: `running`、`success`、`failure` などの実行結果
+- `error_message`: 失敗時のエラー内容
+- `completed_at`: 実行完了日時
+
+## 自動監視の流れ
+
+Cloud SchedulerからCloud Runの `/api/monitor/run` へPOSTリクエストを送ると、次の処理が実行されます。
+
+```text
+Cloud Scheduler
+  ↓ POST /api/monitor/run
+Flask / Cloud Run
+  ↓
+有効な監視キーワードを取得
+  ↓
+楽天市場APIで商品を検索
+  ↓
+Cloud SQLの価格履歴と比較
+  ↓
+新商品・値下げ商品を判定
+  ↓
+通知条件を適用してSlackへ通知
+  ↓
+monitor_runsへ実行結果を保存
+```
+
+監視画面からの手動実行も、同じ監視処理を利用します。
+
 ## プロジェクト構成
 
 ```text
@@ -143,12 +218,12 @@ templates/
 
 主要ファイル:
 
-- `app.py`: Flaskアプリ、Web画面、検索履歴、監視キーワード、通知設定、監視API
+- `app.py`: Flaskアプリ、Web画面、検索履歴、監視キーワード、通知設定、監視実行履歴、監視API
 - `bot.py`: 楽天検索結果の整形、価格履歴との比較、新商品・値下げ判定、通知処理
 - `rakuten.py`: 楽天市場APIの呼び出しと商品データのDataFrame化
 - `product_history.py`: PostgreSQL接続、最新価格取得、価格履歴保存
 - `slack.py`: Slack Webhookによる通知送信と通知メッセージ作成
-- `schema.sql`: PostgreSQLの4テーブルと通知設定初期データの作成
+- `schema.sql`: PostgreSQLの5テーブルと通知設定初期データの作成
 - `config.py`: 除外ワード、出力ファイル名、Slack Webhook URLの読み込み
 - `filter.py`: 検索結果のフィルタリング
 - `excel.py`: 検索結果のExcel保存
@@ -218,6 +293,19 @@ psql -f schema.sql
 
 ## Cloud Run
 
+クラウド環境では、次の構成で検索と監視を実行します。
+
+```text
+楽天市場API
+  ↓
+Flaskアプリ / Cloud Run
+  ↓
+Cloud SQL（PostgreSQL）
+```
+
+定期監視ではCloud SchedulerがCloud Runの監視APIを呼び出します。
+楽天APIの認証情報、DB接続情報、Slack Webhook URLなどの機密情報はSecret Managerで管理し、Cloud Runの環境変数として渡します。
+
 デプロイには [Dockerfile](Dockerfile) を使用します。現在確認されているデプロイコマンドは次のとおりです。
 
 ```bash
@@ -226,7 +314,7 @@ gcloud run deploy rakuten-search-tool --source . --region asia-northeast1
 
 コンテナは `PORT` 環境変数を使用し、指定がない場合は8080番ポートでGunicornを起動します。
 
-Cloud Runで使用するDB接続情報、楽天API認証情報、Slack Webhook URLなどの秘密情報は、ソースコードやREADMEに直接記載せず、Secret Managerから環境変数としてCloud Runへ渡してください。ローカルでは `.env` を利用できますが、秘密情報をGitHubへコミットしないでください。
+Cloud Runで使用するDB接続情報、楽天API認証情報、Slack Webhook URLなどの秘密情報は、ソースコードやREADMEに直接記載しません。ローカルでは `.env` を利用できますが、秘密情報をGitHubへコミットしないでください。
 
 Cloud Run環境では `K_SERVICE` を判定してCloud SQL Unixソケットへ接続します。Cloud SQL接続に必要な設定は、Cloud RunとCloud SQLの環境に合わせて行ってください。
 
