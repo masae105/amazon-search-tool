@@ -172,6 +172,24 @@
             white-space: nowrap;
         }
 
+        .monitor-history {
+            overflow-x: auto;
+        }
+
+        .monitor-history table {
+            min-width: 900px;
+        }
+
+        .monitor-history th,
+        .monitor-history td {
+            white-space: nowrap;
+        }
+
+        .monitor-history td:nth-child(2),
+        .monitor-history td:nth-child(7) {
+            white-space: normal;
+        }
+
         .monitor-toggle-form {
             display: inline;
             margin: 0;
@@ -364,7 +382,7 @@
             </form>
         </section>
 
-        <section>
+        <section class="monitor-history">
             <h2>監視実行履歴</h2>
             {% if monitor_runs %}
                 <table>
