@@ -136,6 +136,23 @@ def get_monitor_keywords():
     return keywords
 
 
+def get_monitor_runs(limit=20):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT id, started_at, keywords, total_count, new_count, "
+        "price_down_count, slack_status, status, error_message, completed_at "
+        "FROM monitor_runs ORDER BY id DESC LIMIT %s",
+        (limit,)
+    )
+
+    monitor_runs = cur.fetchall()
+    cur.close()
+    conn.close()
+    return monitor_runs
+
+
 def get_active_monitor_keywords():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -501,10 +518,12 @@ def monitor():
         return redirect(url_for("monitor"))
 
     monitor_keywords = get_monitor_keywords()
+    monitor_runs = get_monitor_runs()
     notification_settings = get_notification_settings()
     return render_template(
         "monitor.html",
         monitor_keywords=monitor_keywords,
+        monitor_runs=monitor_runs,
         notification_settings=notification_settings,
     )
 

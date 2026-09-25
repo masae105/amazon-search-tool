@@ -364,6 +364,61 @@
             </form>
         </section>
 
+        <section>
+            <h2>監視実行履歴</h2>
+            {% if monitor_runs %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>実行日時</th>
+                            <th>キーワード</th>
+                            <th>取得件数</th>
+                            <th>新商品</th>
+                            <th>値下げ</th>
+                            <th>Slack</th>
+                            <th>結果</th>
+                            <th>完了日時</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in monitor_runs %}
+                        <tr>
+                            <td>{{ record[1].strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                            <td>{{ record[2] }}</td>
+                            <td>{{ record[3] }}</td>
+                            <td>{{ record[4] }}</td>
+                            <td>{{ record[5] }}</td>
+                            <td>{{ record[6] }}</td>
+                            <td>
+                                {% if record[7] == "success" %}
+                                    成功
+                                {% elif record[7] == "failure" %}
+                                    失敗
+                                {% elif record[7] == "running" %}
+                                    実行中
+                                {% else %}
+                                    {{ record[7] }}
+                                {% endif %}
+                                {% if record[8] %}
+                                    <div title="{{ record[8] }}">エラー: {{ record[8] }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record[9] %}
+                                    {{ record[9].strftime("%Y-%m-%d %H:%M:%S") }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>監視実行履歴はありません。</p>
+            {% endif %}
+        </section>
+
         <a class="back-link" href="/">トップページに戻る</a>
     </main>
 </body>
