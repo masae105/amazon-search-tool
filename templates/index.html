@@ -56,6 +56,32 @@
             margin-top: 0;
         }
 
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .dashboard-item {
+            padding: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+
+        .dashboard-item span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .dashboard-item strong {
+            display: block;
+            margin-top: 4px;
+            color: #0f172a;
+            font-size: 20px;
+        }
+
         h1 {
             margin: 0 0 24px;
             color: #0f172a;
@@ -155,12 +181,12 @@
         .search-button {
             margin-left: auto;
             padding: 10px 24px;
-            background: #2563eb;
-            border-color: #2563eb;
+            background: #46749a;
+            border-color: #46749a;
         }
 
         .search-button:hover {
-            background: #1d4ed8;
+            background: #385f80;
         }
 
         table {
@@ -253,8 +279,8 @@
             display: inline-block;
             padding: 6px 10px;
             color: #ffffff;
-            background: #2563eb;
-            border: 1px solid #2563eb;
+            background: #46749a;
+            border: 1px solid #46749a;
             border-radius: 3px;
             font-size: 14px;
             line-height: 1.4;
@@ -263,7 +289,7 @@
 
         .product-link:hover {
             color: #ffffff;
-            background: #1d4ed8;
+            background: #385f80;
         }
 
         .history-actions {
@@ -290,21 +316,21 @@
         }
 
         .history-research-button {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: #46749a;
+            border-color: #46749a;
         }
 
         .history-research-button:hover {
-            background: #1d4ed8;
+            background: #385f80;
         }
 
         .history-delete-button {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: #b85a5a;
+            border-color: #b85a5a;
         }
 
         .history-delete-button:hover {
-            background: #b91c1c;
+            background: #994848;
         }
 
         .history-clear-link {
@@ -312,9 +338,9 @@
             width: fit-content;
             margin: 12px 0 0 auto;
             padding: 8px 16px;
-            color: #dc2626;
+            color: #b85a5a;
             background: #ffffff;
-            border: 1px solid #dc2626;
+            border: 1px solid #b85a5a;
             border-radius: 3px;
             font-size: 14px;
             font-weight: 600;
@@ -322,7 +348,7 @@
         }
 
         .history-clear-link:hover {
-            color: #b91c1c;
+            color: #994848;
             background: #fef2f2;
         }
 
@@ -352,6 +378,10 @@
                 flex: 1 1 100%;
             }
 
+            .dashboard-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             th,
             td {
                 padding: 9px 8px;
@@ -366,6 +396,12 @@
                 width: auto;
             }
         }
+
+        @media (max-width: 400px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -377,6 +413,54 @@
     </nav>
 
     <h1>楽天商品検索ツール</h1>
+
+    <section class="card dashboard-card">
+        <h2>監視ダッシュボード</h2>
+        <div class="dashboard-grid">
+            <div class="dashboard-item">
+                <span>監視中キーワード</span>
+                <strong>{{ active_keyword_count }}</strong>
+            </div>
+            <div class="dashboard-item">
+                <span>最終監視</span>
+                <strong>
+                    {% if latest_monitor_run %}
+                        {{ latest_monitor_run[1].strftime("%m/%d %H:%M") }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </div>
+            <div class="dashboard-item">
+                <span>取得件数</span>
+                <strong>{{ latest_monitor_run[3] if latest_monitor_run else "-" }}</strong>
+            </div>
+            <div class="dashboard-item">
+                <span>新商品</span>
+                <strong>{{ latest_monitor_run[4] if latest_monitor_run else "-" }}</strong>
+            </div>
+            <div class="dashboard-item">
+                <span>値下げ</span>
+                <strong>{{ latest_monitor_run[5] if latest_monitor_run else "-" }}</strong>
+            </div>
+            <div class="dashboard-item">
+                <span>結果</span>
+                <strong>
+                    {% if not latest_monitor_run %}
+                        -
+                    {% elif latest_monitor_run[7] == "success" %}
+                        成功
+                    {% elif latest_monitor_run[7] == "failure" %}
+                        失敗
+                    {% elif latest_monitor_run[7] == "running" %}
+                        実行中
+                    {% else %}
+                        {{ latest_monitor_run[7] }}
+                    {% endif %}
+                </strong>
+            </div>
+        </div>
+    </section>
 
     <section class="card search-card">
         <h2>商品検索</h2>

@@ -723,6 +723,12 @@ def index():
         results = []
 
     history = get_search_history()
+    monitor_keywords = get_monitor_keywords()
+    monitor_runs = get_monitor_runs(limit=1)
+    active_keyword_count = sum(
+        1 for record in monitor_keywords if record[2]
+    )
+    latest_monitor_run = monitor_runs[0] if monitor_runs else None
 
     return render_template(
         "index.html",
@@ -733,7 +739,9 @@ def index():
         current_page=current_page,
         total_pages=total_pages,
         sort=sort,
-        history=history
+        history=history,
+        active_keyword_count=active_keyword_count,
+        latest_monitor_run=latest_monitor_run,
     )
 
 
